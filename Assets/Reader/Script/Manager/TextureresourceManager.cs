@@ -9,7 +9,8 @@ namespace Nobel
 	/// </summary>
 	public class TextureresourceManager : SingletonMonoBehaviourFast<TextureresourceManager>
 	{
-		[TooltipAttribute("事前ロードも含めた画像の最大同時利用数. レイヤー数x2が安全圏")]
+		[Range(3, 15),
+		 TooltipAttribute("事前ロードも含めた画像の最大同時利用数. レイヤー数x2が安全圏")]
 		public int MaxTextureCount = 5;
 		private List<Texture2D> m_textureList = new List<Texture2D>();
 		
