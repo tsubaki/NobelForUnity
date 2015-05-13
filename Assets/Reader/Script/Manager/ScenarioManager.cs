@@ -2,13 +2,18 @@ using UnityEngine;
 using System.Collections;
 using System.IO;
 using System.Text;
+#if UNITY_EDITOR
+using System.Linq;
+using UnityEditor;
+#endif
 
 namespace Nobel
 {
 	[RequireComponent(typeof( TextController))]
 	public class ScenarioManager : SingletonMonoBehaviourFast<ScenarioManager> {
 
-		[TooltipAttribute("読み込むシナリオ名。Resourcesのシナリオ一覧より選択する")]
+		[ScenarioSelector, 
+		 TooltipAttribute("読み込むシナリオ名。Resourcesのシナリオ一覧より選択する")]
 		public string LoadFileName;
 		
 		private string[] m_scenarios;
@@ -100,5 +105,32 @@ namespace Nobel
 		}
 		
 		#endregion
+
+		public class ScenarioSelectorAttribute : PropertyAttribute
+		{
+			public ScenarioSelectorAttribute(){}
+		}
+
+#if UNITY_EDITOR
+		[CustomPropertyDrawer( typeof ( ScenarioSelectorAttribute ) )]
+		public class ScenarioSelectorDrawer : PropertyDrawer
+		{
+			public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
+			{
+				TextAsset[] scenarioList = Resources.LoadAll<TextAsset>("Scenario");
+
+				var index = System.Array.FindIndex<TextAsset>(scenarioList, item => item.name == property.stringValue);
+				if( index == -1)
+					index = 0;
+			
+
+				var popup = scenarioList.Select(item => item.name).ToArray();
+				EditorGUI.BeginChangeCheck();
+				var selectedIndex = EditorGUI.Popup(position, "scenario",  index, popup);
+				if( EditorGUI.EndChangeCheck() )
+					property.stringValue = scenarioList[selectedIndex].name;
+			}
+		}
+#endif
 	}
 }
